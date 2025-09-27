@@ -1,0 +1,13 @@
+{
+    "hosting":{
+        "port":80,
+        "interface":"127.0.0.1",
+        "debug":true,
+        "server":"flask",
+        "threads":10,
+        "flask-log":false
+    },
+    "external-apis":{
+        "webhooks":false
+    }
+}

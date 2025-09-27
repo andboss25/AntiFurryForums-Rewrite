@@ -45,9 +45,8 @@ class ConfigSet:
             file.close()
 
         return content, existed
-    
 
-    def get_value(self, file_path:str, value_path:str):
+    def get_value(self, file_path: str, value_path: str):
         """
         Check for a value in a json file
 
@@ -55,26 +54,23 @@ class ConfigSet:
         value_path = a path for the value inside the value
         (example: 'HostingOptions.port')
         """
-        
-        file_content,_ = self.parse_file(file_path)
-        
+        file_content, _ = self.parse_file(file_path)
+
         value_path = value_path.split(".")
 
         # Remove all occurances of "."
-        value_path=[j for _,j in enumerate(value_path) if j!="."]
+        value_path = [j for _, j in enumerate(value_path) if j != "."]
 
         if len(value_path) != 2:
             raise Exception("Value path must be composed of two values only!")
 
-
         try:
             return file_content[value_path[0]][value_path[1]]
-        except:
+        except KeyError:
             return None
 
 
 class TestCases(unittest.TestCase):
-
     """
     Test class for this file
     """
@@ -83,63 +79,36 @@ class TestCases(unittest.TestCase):
         test_file_path = os.path.join(".test-cache", "test.json")
         class_instance = ConfigSet()
 
-        self.assertEqual(
-            class_instance.parse_file(test_file_path),
-            ({}, False)
-        )
+        self.assertEqual(class_instance.parse_file(test_file_path), ({}, False))
 
-        self.assertEqual(
-            class_instance.parse_file(test_file_path),
-            ({}, True)
-        )
+        self.assertEqual(class_instance.parse_file(test_file_path), ({}, True))
 
         test_file_path_2 = os.path.join(".test-cache", "test-2.json")
 
-        dump_content = {
-            "test": True,
-            "test_2":{
-                "port":80,
-                "interface":"0.0.0.0"
-            }
-        }
+        dump_content = {"test": True, "test_2": {"port": 80, "interface": "0.0.0.0"}}
 
         file = open(test_file_path_2, "w")
         json.dump(dump_content, file, indent=3)
         file.close()
 
         self.assertEqual(
-            class_instance.parse_file(test_file_path_2),
-            (dump_content, True)
+            class_instance.parse_file(test_file_path_2), (dump_content, True)
         )
 
     def test_get_value(self):
         class_instance = ConfigSet()
         test_file_path_2 = os.path.join(".test-cache", "test-2.json")
 
-        dump_content = {
-            "test": True,
-            "test_2":{
-                "port":80,
-                "interface":"0.0.0.0"
-            }
-        }
+        dump_content = {"test": True, "test_2": {"port": 80, "interface": "0.0.0.0"}}
 
         file = open(test_file_path_2, "w")
         json.dump(dump_content, file, indent=3)
         file.close()
 
-        self.assertEqual(
-            class_instance.get_value(
-                test_file_path_2,
-                "test_2.port"
-            ),80
-        )
+        self.assertEqual(class_instance.get_value(test_file_path_2, "test_2.port"), 80)
 
         self.assertEqual(
-            class_instance.get_value(
-                test_file_path_2,
-                "test_2.does_not_exist"
-            ),None
+            class_instance.get_value(test_file_path_2, "test_2.does_not_exist"), None
         )
 
 
@@ -150,5 +119,4 @@ if __name__ == "__main__":
         pass
 
     os.mkdir(os.path.join(".test-cache"))
-    
     unittest.main()
