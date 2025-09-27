@@ -2,6 +2,7 @@
 *.log
 *.json
 /.ruff_cache
-/.pycache
+__pycache__
+/.test-cache
 /images
 !main-config.json
