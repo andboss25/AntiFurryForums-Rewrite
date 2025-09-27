@@ -1,0 +1,7 @@
+*.db
+*.log
+*.json
+/.ruff_cache
+/.pycache
+/images
+!main-config.json
