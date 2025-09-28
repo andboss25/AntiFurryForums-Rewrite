@@ -8,6 +8,7 @@ import colorama
 
 from core.utils import config
 from core.utils import log
+from core.utils import ip
 
 from core.prequest import track_traffic
 
@@ -17,7 +18,16 @@ startup_logger = log.DataLogger('startup','general').get_logger()
 
 @app.before_request
 def before_request():
-    track_traffic.log_traffic(request)
+
+    real_ip = ip.get_real_ip(
+        request
+    )
+
+    if ip.is_ip_banned(real_ip):
+        track_traffic.log_traffic(request,True)
+        return f'<h1>Your ip adress "{real_ip}" is banend for reason "{ip.ip_ban_details(real_ip)[1]}"</h1>',403
+    
+    track_traffic.log_traffic(request,False)
 
 @app.route("/")
 def index():
