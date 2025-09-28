@@ -9,7 +9,7 @@ def log_traffic(request: flask.Request,blocked:bool):
     real_ip = ip.get_real_ip(request)
 
     if blocked:
-        logger.info(f"[BLOCKED {real_ip}] - {request.path}")
+        logger.info(f"[BLOCKED {real_ip}] - {request.full_path}")
         return
     
     logger.info(f"{real_ip} - {request.path}")

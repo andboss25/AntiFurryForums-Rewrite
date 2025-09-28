@@ -11,6 +11,6 @@
         "real-ip-header":""
     },
     "external-apis":{
-        "webhooks":true
+        "webhooks":false
     }
 }

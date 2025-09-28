@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-
+from flask_limiter import Limiter
 
 import logging
 import waitress
@@ -13,6 +13,15 @@ from core.utils import ip
 from core.prequest import track_traffic
 
 app = Flask(__name__)
+
+ratelimiter = Limiter(
+    ip.get_real_ip_no_params,
+    app=app,
+    default_limits=["5 per minute","1 per minute"],
+    storage_uri="memory://",
+    on_breach=ip.ratelimit_breached
+)
+
 config_loader = config.ConfigSet()
 startup_logger = log.DataLogger('startup','general').get_logger()
 
@@ -27,9 +36,11 @@ def before_request():
         track_traffic.log_traffic(request,True)
         return f'<h1>Your ip adress "{real_ip}" is banend for reason "{ip.ip_ban_details(real_ip)[1]}"</h1>',403
     
+    
     track_traffic.log_traffic(request,False)
 
 @app.route("/")
+@ratelimiter.limit("5 per minute")
 def index():
     return "Welcome to the anti-furry forums!"
 
