@@ -1,7 +1,6 @@
 from flask import Flask
+from flask import request
 
-import os
-import glob
 
 import logging
 import waitress
@@ -10,9 +9,15 @@ import colorama
 from core.utils import config
 from core.utils import log
 
+from core.prequest import track_traffic
+
 app = Flask(__name__)
 config_loader = config.ConfigSet()
-logger = log.DataLogger('startup','general').get_logger()
+startup_logger = log.DataLogger('startup','general').get_logger()
+
+@app.before_request
+def before_request():
+    track_traffic.log_traffic(request)
 
 @app.route("/")
 def index():
@@ -60,7 +65,7 @@ def load_configs_and_run(app: Flask):
                 f"""do not deploy! {colorama.Fore.WHITE}"""
             )
 
-        logger.info(
+        startup_logger.info(
             f"""[Server startup!] Hosting on intrface '{interface}' """
             f"""port '{port}' """
             f"""with {threads} server threads."""
@@ -76,13 +81,20 @@ def load_configs_and_run(app: Flask):
         server_start_message()
         waitress.serve(app, listen=f"{interface}:{port}", threads=threads)
 
+def load_blueprints(app: Flask):
+    """
+    Load all blueprints
+    """
+
+    pass
+
 def initialize_application(app: Flask):
     """
     Load everything and run
     """
-
+    
+    load_blueprints(app)
     load_configs_and_run(app)
-
 
 if __name__ == "__main__":
     initialize_application(app)

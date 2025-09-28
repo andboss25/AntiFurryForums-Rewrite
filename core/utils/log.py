@@ -39,6 +39,8 @@ class DataLogger():
             else:
                 if record.levelname == "INFO":
                     message =f"`{record.getMessage()}`"
+                elif record.levelname == "CRITICAL":
+                    message =f"{record.levelname} - `{record.getMessage()}` @here"
                 else:
                     message = f"{record.levelname} - `{record.getMessage()}`"
                 

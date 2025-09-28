@@ -54,6 +54,7 @@ available_webhooks = {
     "general": Webhook("general"),
     "testing": Webhook("testing"),
     "security": Webhook("security"),
+    "anomaly": Webhook("anomaly"),
 }
 
 if __name__ == "__main__":

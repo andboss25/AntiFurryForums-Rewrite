@@ -7,7 +7,10 @@
         "threads":10,
         "flask-log":false
     },
+    "reverse-proxy":{
+        "real-ip-header":""
+    },
     "external-apis":{
-        "webhooks":false
+        "webhooks":true
     }
 }
