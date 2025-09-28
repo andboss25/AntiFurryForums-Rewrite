@@ -75,40 +75,54 @@ class TestCases(unittest.TestCase):
     Test class for this file
     """
 
+    dump_content = {
+        "test": True,
+        "test_2": {
+            "port": 80, "interface": "0.0.0.0"
+        }
+    }
+
     def test_parse_file(self):
         test_file_path = os.path.join(".test-cache", "test.json")
         class_instance = ConfigSet()
 
-        self.assertEqual(class_instance.parse_file(test_file_path), ({}, False))
+        self.assertEqual(
+            class_instance.parse_file(test_file_path), ({}, False)
+        )
 
-        self.assertEqual(class_instance.parse_file(test_file_path), ({}, True))
+        self.assertEqual(
+            class_instance.parse_file(test_file_path), ({}, True)
+        )
 
         test_file_path_2 = os.path.join(".test-cache", "test-2.json")
 
-        dump_content = {"test": True, "test_2": {"port": 80, "interface": "0.0.0.0"}}
-
         file = open(test_file_path_2, "w")
-        json.dump(dump_content, file, indent=3)
+        json.dump(self.dump_content, file, indent=3)
         file.close()
 
         self.assertEqual(
-            class_instance.parse_file(test_file_path_2), (dump_content, True)
+            class_instance.parse_file(test_file_path_2),
+            (self.dump_content, True)
         )
 
     def test_get_value(self):
         class_instance = ConfigSet()
         test_file_path_2 = os.path.join(".test-cache", "test-2.json")
 
-        dump_content = {"test": True, "test_2": {"port": 80, "interface": "0.0.0.0"}}
-
         file = open(test_file_path_2, "w")
-        json.dump(dump_content, file, indent=3)
+        json.dump(self.dump_content, file, indent=3)
         file.close()
 
-        self.assertEqual(class_instance.get_value(test_file_path_2, "test_2.port"), 80)
+        self.assertEqual(
+            class_instance.get_value(test_file_path_2, "test_2.port"),
+            80
+        )
 
         self.assertEqual(
-            class_instance.get_value(test_file_path_2, "test_2.does_not_exist"), None
+            class_instance.get_value(
+                test_file_path_2, "test_2.does_not_exist"
+            ),
+            None
         )
 
 

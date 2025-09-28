@@ -63,7 +63,8 @@ if __name__ == "__main__":
         for webhook in available_webhooks:
             print(f"Testing '{webhook}' webhook...")
             available_webhooks[webhook].log_action(
-                "This is a test! If you are seeing this then the webhook is configured correctly!"
+                "## This is a test!\n"
+                "### If you are seeing this then the webhook is configured!"
             )
             print(f" - '{webhook}' works!")
     else:

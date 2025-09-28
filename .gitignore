@@ -4,5 +4,6 @@
 /.ruff_cache
 __pycache__
 /.test-cache
+/logs
 /images
 !main-config.json
