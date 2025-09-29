@@ -6,4 +6,5 @@ __pycache__
 /.test-cache
 /logs
 /images
+bullshit.py
 !main-config.json
