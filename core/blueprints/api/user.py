@@ -6,15 +6,20 @@ import time
 import random
 import json
 
+from flask import request
+from flask import jsonify
 from flask import Blueprint
+from flask_limiter import Limiter
 
 from core.utils import log
 from core.utils import config
 from core.utils import hash
+from core.utils import ip
 
 config_loader = config.ConfigSet()
 logger = log.DataLogger("users-created","general").get_logger()
-blueprint = Blueprint("users",__name__)
+security_logger = log.DataLogger("user-security","security").get_logger()
+user_blueprint = Blueprint("users",__name__)
 
 def initialize_database():
     db = sqlite3.connect(
@@ -77,7 +82,18 @@ class RawUserCRUD:
         
         """
 
+        if type(username) is not str:
+            security_logger.info(f"Username of unusual type detected '{username}'!")
+            return False,None,"Request blocked, skid detected!"
+        
+        if type(password) is not str:
+            security_logger.info(f"Password of unusual type detected '{password}'!")
+            return False,None,"Request blocked, skid detected!"
+
         sanitize_result = Sanitize.constraint_username(username)
+
+        if username is None or password is None:
+            return False,None,"Username or password is empty!"
         
         if not sanitize_result[0]:
             return False,None,sanitize_result[1]
@@ -95,6 +111,7 @@ class RawUserCRUD:
                 )
             )
 
+            logger.info(f"Account created with username: {username}")
             return True,tk,None
         except sqlite3.IntegrityError:
             return False,None,"Username already used!"
@@ -148,7 +165,57 @@ class RawUserCRUD:
 
         if data == None:
             return None
+        
         data.pop("password")
         data.pop("token")
 
         return data
+    
+    def get_token(username:str):
+        data = RawUserCRUD.view_user(username)
+        return data.get("token")
+
+
+@user_blueprint.route("/signup",methods = ["post"])
+def create_user_api():
+    data = request.json
+    user_result = RawUserCRUD.create_user(
+        data.get("username"),
+        data.get("password")
+    )
+
+    if not user_result[0]:
+        return jsonify(user_result[2])
+    
+    return jsonify({"token":user_result[1]})
+
+@user_blueprint.route("/login",methods = ["get"])
+def login_user_api():
+    data = request.json
+        
+    username = data.get("username")
+    password = data.get("password")
+
+    password = hash.generate_hash_512_HEXDIGEST(password)
+
+    user_data = RawUserCRUD.view_user(username)
+
+    if user_data == None:
+        return jsonify({"error":"User does not exist"})
+    
+    if not password == user_data.get("password"):
+        return jsonify({"error":"Invalid password"})
+    
+    token = RawUserCRUD.get_token(username)
+
+    return jsonify({"token":token})
+
+@user_blueprint.route("/viewall")
+def view_all_users_api():
+    return RawUserCRUD.list_users_safe()
+
+@user_blueprint.route("/viewuser")
+def view_user_api():
+    data = request.args
+    username = data.get("username")
+    return RawUserCRUD.view_user_safe(username) or jsonify({})

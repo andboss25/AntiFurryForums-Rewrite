@@ -17,7 +17,7 @@ app = Flask(__name__)
 ratelimiter = Limiter(
     ip.get_real_ip_no_params,
     app=app,
-    default_limits=["5 per minute","1 per minute"],
+    default_limits=["5 per minute"],
     storage_uri="memory://",
     on_breach=ip.ratelimit_breached
 )
@@ -25,6 +25,7 @@ ratelimiter = Limiter(
 config_loader = config.ConfigSet()
 startup_logger = log.DataLogger('startup','general').get_logger()
 
+@ratelimiter.limit("80 per minute")
 @app.before_request
 def before_request():
 
@@ -40,7 +41,6 @@ def before_request():
     track_traffic.log_traffic(request,False)
 
 @app.route("/")
-@ratelimiter.limit("5 per minute")
 def index():
     return "Welcome to the anti-furry forums!"
 
@@ -107,7 +107,9 @@ def load_blueprints(app: Flask):
     Load all blueprints
     """
 
-    pass
+    from core.blueprints.api.user import user_blueprint
+
+    app.register_blueprint(user_blueprint,url_prefix="/api/user")
 
 def initialize_application(app: Flask):
     """
