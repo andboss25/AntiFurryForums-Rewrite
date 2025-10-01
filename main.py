@@ -5,6 +5,7 @@ from flask_limiter import Limiter
 import logging
 import waitress
 import colorama
+import os
 
 from core.utils import config
 from core.utils import log
@@ -12,12 +13,21 @@ from core.utils import ip
 
 from core.prequest import track_traffic
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder=os.path.join(
+        "core",
+        "blueprints",
+        "pages",
+        "static"
+    ),
+    static_url_path="/static"
+)
 
 ratelimiter = Limiter(
     ip.get_real_ip_no_params,
     app=app,
-    default_limits=["5 per minute"],
+    default_limits=["60 per minute"],
     storage_uri="memory://",
     on_breach=ip.ratelimit_breached
 )
@@ -107,8 +117,10 @@ def load_blueprints(app: Flask):
     Load all blueprints
     """
 
-    from core.blueprints.api.user import user_blueprint
+    from core.blueprints.api.pages import pages_blueprint
+    app.register_blueprint(pages_blueprint)
 
+    from core.blueprints.api.user import user_blueprint
     app.register_blueprint(user_blueprint,url_prefix="/api/user")
 
 def initialize_application(app: Flask):

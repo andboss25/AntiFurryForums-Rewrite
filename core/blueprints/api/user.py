@@ -61,12 +61,12 @@ class Sanitize:
     """A class for cleanup filter functions for security purposes and constrains"""
     def constraint_username(username:str):
         if len(username) > 32 or len(username) < 3:
-            return False,"Username must be between 3 and 32 characters!"
+            return False,{"error":"Username must be between 3 and 32 characters!"}
         
         banned_characters = ''' <>/?'!@#$%^&*()-+="\\`~|;,:'''
 
         if any(c in banned_characters for c in username):
-            return False,"Username must not contain special characters or spaces (. and _ are an exception)"
+            return False,{"error":"Username must not contain special characters or spaces (. and _ are an exception)"}
         
         return True,None
 
@@ -93,7 +93,7 @@ class RawUserCRUD:
         sanitize_result = Sanitize.constraint_username(username)
 
         if username is None or password is None:
-            return False,None,"Username or password is empty!"
+            return False,None,{"error":"Username or password is empty!"}
         
         if not sanitize_result[0]:
             return False,None,sanitize_result[1]
@@ -114,7 +114,7 @@ class RawUserCRUD:
             logger.info(f"Account created with username: {username}")
             return True,tk,None
         except sqlite3.IntegrityError:
-            return False,None,"Username already used!"
+            return False,None,{"error":"Username already used!"}
         
     # READ
     def list_users() -> dict[str]:
@@ -189,12 +189,20 @@ def create_user_api():
     
     return jsonify({"token":user_result[1]})
 
-@user_blueprint.route("/login",methods = ["get"])
+@user_blueprint.route("/login",methods = ["post"])
 def login_user_api():
     data = request.json
         
     username = data.get("username")
     password = data.get("password")
+
+    if type(username) is not str:
+        security_logger.info(f"Username of unusual type detected '{username}'!")
+        return "Request blocked, skid detected!",403
+    
+    if type(password) is not str:
+        security_logger.info(f"Password of unusual type detected '{password}'!")
+        return "Request blocked, skid detected!",403
 
     password = hash.generate_hash_512_HEXDIGEST(password)
 

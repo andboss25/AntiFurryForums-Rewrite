@@ -1,0 +1,163 @@
+
+input{
+    display: block;
+}
+
+p{
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+.login-box-container {
+    position: absolute;
+    bottom: 0;
+    top:0;
+    right:0;
+    left:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box{
+    padding: 50px;
+    border: solid;
+    border-width: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    text-align: center;
+}
+
+.login-box input {
+    margin: 0px 15px;
+    border: solid;
+    border-color: white;
+    background-color: black;
+    border-width: 1px;
+    padding: 10px;
+    font-size: 15px;
+    color: white;
+    transition: all 0.20s;
+}
+
+.login-box input:hover {
+    font-size: 20px;
+}
+
+.login-box input::placeholder {
+    color: rgb(190, 190, 190);
+}
+
+.login-box button {
+    margin: 0px 15px;
+}
+
+.login-box button:hover {
+    cursor: pointer;
+}
+
+.login-title {
+    font-size: 25px;
+    text-align: center;
+}
+
+.agree-to-policy{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    border: solid;
+    border-width: 1px;
+    border-color: white;
+    background-color: black;
+    color: white;
+    font-size: 15px;
+    padding: 10px;
+    transition: all 0.20s;
+}
+
+button:hover{
+    font-size: 20px;
+    background-color: white;
+    color: black;
+}
+
+button:active{
+    font-size: 20px;
+    background-color: white;
+    color: black;
+    opacity: 0.8;
+}
+
+.register-link{
+    transition: all 0.20s;
+}
+
+.register-link:hover{
+    font-size: 20px;
+}
+
+#g-recaptcha-container {
+    display: none;
+    justify-content: center;
+}
+
+.other-authenticators {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-icon {
+    height: 20px;
+    margin-left: 10px;
+}
+
+.auth-button{
+    display: flex;
+    align-items: center;
+}
+
+.discord-auth{
+    background-color: rgb(114,137,218);
+    border: none;
+}
+
+.discord-auth:hover{
+    color: rgb(114,137,218);
+}
+
+.google-auth {
+    background-color: white;
+    color: black;
+    border: none;
+}
+
+.google-auth:hover {
+    background-color: black;
+    color: white;
+    border: solid;
+    border-width: 1px;
+}
+
+@media (max-width: 580px) {
+    .login-box{
+        padding: 20px;
+    }
+
+    .login-title {
+        font-size: 15px;
+    }
+
+    .login-box{
+        margin: 10px;
+    }
+
+}
