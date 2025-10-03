@@ -13,6 +13,9 @@ from core.utils import ip
 
 from core.prequest import track_traffic
 
+config_loader = config.ConfigSet()
+main_config_file_path = config_loader.main_config_file_path
+
 app = Flask(
     __name__,
     static_folder=os.path.join(
@@ -24,18 +27,21 @@ app = Flask(
     static_url_path="/static"
 )
 
+timeout = config_loader.get_value(
+    main_config_file_path, "anti-ddos.timeout"
+)
+
 ratelimiter = Limiter(
     ip.get_real_ip_no_params,
     app=app,
-    default_limits=["60 per minute"],
+    default_limits=[timeout],
     storage_uri="memory://",
     on_breach=ip.ratelimit_breached
 )
 
-config_loader = config.ConfigSet()
 startup_logger = log.DataLogger('startup','general').get_logger()
 
-@ratelimiter.limit("80 per minute")
+@ratelimiter.limit(timeout)
 @app.before_request
 def before_request():
 
@@ -60,7 +66,6 @@ def load_configs_and_run(app: Flask):
     Load configs and run the given application
     """
     # hosting configuration loaders
-    main_config_file_path = config_loader.main_config_file_path
     port = config_loader.get_value(main_config_file_path, "hosting.port")
 
     interface = config_loader.get_value(

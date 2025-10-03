@@ -15,6 +15,7 @@ from core.utils import log
 from core.utils import config
 from core.utils import hash
 from core.utils import ip
+from core.utils import auth
 
 config_loader = config.ConfigSet()
 logger = log.DataLogger("users-created","general").get_logger()
@@ -55,6 +56,17 @@ class Token:
 
         data = json.dumps(data)
         return hash.encode_base_64(data)
+        
+    def is_valid_token(token:str):
+        db = initialize_database()
+        data = db.execute(
+            "SELECT * FROM users WHERE token=?",(token,)
+        ).fetchone()
+        
+        if data is not None:
+            return True
+        
+        return False
 
 # Raw CRUD functions
 class Sanitize:
@@ -218,12 +230,23 @@ def login_user_api():
 
     return jsonify({"token":token})
 
+@auth.authenticate()
 @user_blueprint.route("/viewall")
 def view_all_users_api():
-    return RawUserCRUD.list_users_safe()
+    
+    users = RawUserCRUD.list_users_safe()
 
+    data = {
+        "users": users,
+        "count": len(users)
+    }
+    
+    return jsonify(data)
+
+@auth.authenticate()
 @user_blueprint.route("/viewuser")
 def view_user_api():
     data = request.args
     username = data.get("username")
     return RawUserCRUD.view_user_safe(username) or jsonify({})
+

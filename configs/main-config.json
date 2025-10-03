@@ -2,13 +2,16 @@
     "hosting":{
         "port":80,
         "interface":"127.0.0.1",
-        "debug":true,
+        "debug":false,
         "server":"flask",
         "threads":10,
         "flask-log":false
     },
     "reverse-proxy":{
         "real-ip-header":""
+    },
+    "anti-ddos":{
+        "timeout":"80 per minute"
     },
     "external-apis":{
         "webhooks":false
